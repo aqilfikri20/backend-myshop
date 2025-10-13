@@ -1,0 +1,36 @@
+package main
+
+import (
+	"log"
+	"os"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
+
+	"backend/handlers"
+)
+
+func main() {
+	_ = godotenv.Load()
+	InitDB()
+	defer DB.Close()
+
+	app := fiber.New()
+
+	app.Get("/api/products", handlers.GetProducts(DB))
+	app.Get("/api/products/:id", handlers.GetProduct(DB))
+	app.Post("/api/products", handlers.CreateProduct(DB))
+	app.Put("/api/products/:id", handlers.UpdateProduct(DB))
+	app.Delete("/api/products/:id", handlers.DeleteProduct(DB))
+
+	app.Get("/api/users", handlers.GetUsers(DB))
+	app.Post("/api/users", handlers.CreateUser(DB))
+
+	port := os.Getenv("APP_PORT")
+	if port == "" {
+		port = "3000"
+	}
+
+	log.Printf("✅ Server berjalan di http://localhost:%s", port)
+	log.Fatal(app.Listen(":" + port))
+}
