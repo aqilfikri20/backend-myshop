@@ -102,10 +102,27 @@ func UpdateProduct(db *sql.DB) fiber.Handler {
 func DeleteProduct(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
-		_, err := db.Exec(`DELETE FROM products WHERE product_id=$1`, id)
+
+		// Eksekusi query delete
+		res, err := db.Exec(`DELETE FROM products WHERE product_id=$1`, id)
 		if err != nil {
-			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+			return c.Status(500).JSON(fiber.Map{
+				"error": "Gagal menghapus produk: " + err.Error(),
+			})
 		}
-		return c.SendStatus(204)
+
+		// Cek apakah ada baris yang terhapus
+		rowsAffected, _ := res.RowsAffected()
+		if rowsAffected == 0 {
+			return c.Status(404).JSON(fiber.Map{
+				"message": "Produk tidak ditemukan atau sudah dihapus.",
+			})
+		}
+
+		// Jika sukses
+		return c.Status(200).JSON(fiber.Map{
+			"message":    "Produk berhasil dihapus.",
+			"deleted_id": id,
+		})
 	}
 }
