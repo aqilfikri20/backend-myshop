@@ -25,13 +25,13 @@ func InitDB() {
 
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
-		log.Fatalf("❌ Gagal koneksi database: %v", err)
+		log.Fatalf("Gagal koneksi database: %v", err)
 	}
 
 	if err := db.Ping(); err != nil {
-		log.Fatalf("❌ Tidak bisa ping database: %v", err)
+		log.Fatalf("Tidak bisa ping database: %v", err)
 	}
 
 	DB = db
-	log.Println("✅ Koneksi database berhasil")
+	log.Println("Koneksi database berhasil")
 }

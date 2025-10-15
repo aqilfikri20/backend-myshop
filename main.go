@@ -31,6 +31,6 @@ func main() {
 		port = "3000"
 	}
 
-	log.Printf("✅ Server berjalan di http://localhost:%s", port)
+	log.Printf("Server berjalan di http://localhost:%s", port)
 	log.Fatal(app.Listen(":" + port))
 }

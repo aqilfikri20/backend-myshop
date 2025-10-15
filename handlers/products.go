@@ -7,7 +7,7 @@ import (
 )
 
 type Product struct {
-	ProductID   int     `json:"product_id"`
+	ProductID   uint    `json:"product_id" gorm:"primaryKey;autoIncrement"`
 	ProductName string  `json:"product_name"`
 	Price       float64 `json:"price"`
 	ImageURL    *string `json:"image_url,omitempty"`
