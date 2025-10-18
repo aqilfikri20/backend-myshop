@@ -22,14 +22,24 @@ func main() {
 		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
+	// --- ROUTE PRODUK ---
 	app.Get("/api/products", handlers.GetProducts(DB))
 	app.Get("/api/products/:id", handlers.GetProduct(DB))
 	app.Post("/api/products", handlers.CreateProduct(DB))
 	app.Put("/api/products/:id", handlers.UpdateProduct(DB))
 	app.Delete("/api/products/:id", handlers.DeleteProduct(DB))
 
+	// --- ROUTE USER ---
 	app.Get("/api/users", handlers.GetUsers(DB))
 	app.Post("/api/users", handlers.CreateUser(DB))
+
+	// --- LOGIN & REGISTER MANUAL ---
+	app.Post("/api/register", handlers.RegisterUser(DB))
+	app.Post("/api/login", handlers.LoginUser(DB))
+
+	// --- LOGIN GOOGLE (OAuth2) ---
+	app.Get("/api/auth/google/login", handlers.GoogleLogin)
+	app.Get("/api/auth/google/callback", handlers.GoogleCallback(DB))
 
 	port := os.Getenv("APP_PORT")
 	if port == "" {
