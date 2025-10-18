@@ -1,3 +1,4 @@
+// menentukan struktur data untuk user, store, category, dan product
 package main
 
 import "time"

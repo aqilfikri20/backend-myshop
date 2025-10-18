@@ -1,3 +1,4 @@
+// menghubungkan ke database PostgreSQL menggunakan pgx
 package main
 
 import (

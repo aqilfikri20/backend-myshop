@@ -1,13 +1,14 @@
+// menjalankan server web menggunakan framework Fiber
 package main
 
 import (
+	"backend/handlers"
 	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
-
-	"backend/handlers"
 )
 
 func main() {
@@ -16,7 +17,11 @@ func main() {
 	defer DB.Close()
 
 	app := fiber.New()
-
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3000", // Next.js frontend
+		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 	app.Get("/api/products", handlers.GetProducts(DB))
 	app.Get("/api/products/:id", handlers.GetProduct(DB))
 	app.Post("/api/products", handlers.CreateProduct(DB))
