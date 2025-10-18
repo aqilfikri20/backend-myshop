@@ -11,16 +11,16 @@ import (
 )
 
 // Simpan secret di .env agar lebih aman
-var jwtSecret = []byte("super_secret")
+var jwtSecret = []byte("JWT_SECRET")
 
 type RegisterInput struct {
 	FullName string `json:"full_name"`
-	Gmail    string `json:"gmail"`
+	Phone    string `json:"no_hp`
 	Password string `json:"password"`
 }
 
 type LoginInput struct {
-	Gmail    string `json:"gmail"`
+	Phone    string `json:"no_hp`
 	Password string `json:"password"`
 }
 
@@ -35,14 +35,14 @@ func RegisterUser(db *sql.DB) fiber.Handler {
 
 		// Validasi ringan
 		input.FullName = strings.TrimSpace(input.FullName)
-		input.Gmail = strings.TrimSpace(input.Gmail)
-		if input.FullName == "" || input.Gmail == "" || input.Password == "" {
+		input.Phone = strings.TrimSpace(input.Phone)
+		if input.FullName == "" || input.Phone == "" || input.Password == "" {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "All fields are required"})
 		}
 
 		// Cek apakah user sudah ada
 		var exists bool
-		err := db.QueryRow(`SELECT EXISTS(SELECT 1 FROM users WHERE gmail=$1)`, input.Gmail).Scan(&exists)
+		err := db.QueryRow(`SELECT EXISTS(SELECT 1 FROM users WHERE no_hp=$1)`, input.Phone).Scan(&exists)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Database error"})
 		}
@@ -57,8 +57,8 @@ func RegisterUser(db *sql.DB) fiber.Handler {
 		}
 
 		// Insert user
-		_, err = db.Exec(`INSERT INTO users (full_name, gmail, password_user) VALUES ($1, $2, $3)`,
-			input.FullName, input.Gmail, string(hashedPassword))
+		_, err = db.Exec(`INSERT INTO users (full_name, no_hp, password_user) VALUES ($1, $2, $3)`,
+			input.FullName, input.Phone, string(hashedPassword))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to register user"})
 		}
@@ -75,8 +75,8 @@ func LoginUser(db *sql.DB) fiber.Handler {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON input"})
 		}
 
-		input.Gmail = strings.TrimSpace(input.Gmail)
-		if input.Gmail == "" || input.Password == "" {
+		input.Phone = strings.TrimSpace(input.Phone)
+		if input.Phone == "" || input.Password == "" {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Email and password are required"})
 		}
 
@@ -86,7 +86,7 @@ func LoginUser(db *sql.DB) fiber.Handler {
 			hashedPassword string
 		)
 
-		err := db.QueryRow(`SELECT user_id, full_name, password_user FROM users WHERE gmail=$1`, input.Gmail).
+		err := db.QueryRow(`SELECT user_id, full_name, password_user FROM users WHERE no_hp=$1`, input.Phone).
 			Scan(&id, &name, &hashedPassword)
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid email or password"})
@@ -104,7 +104,7 @@ func LoginUser(db *sql.DB) fiber.Handler {
 		claims := jwt.MapClaims{
 			"user_id": id,
 			"name":    name,
-			"email":   input.Gmail,
+			"email":   input.Phone,
 			"exp":     time.Now().Add(time.Hour * 72).Unix(), // berlaku 3 hari
 		}
 
@@ -120,7 +120,7 @@ func LoginUser(db *sql.DB) fiber.Handler {
 			"user": fiber.Map{
 				"user_id":   id,
 				"full_name": name,
-				"gmail":     input.Gmail,
+				"no_hp":     input.Phone,
 			},
 		})
 	}

@@ -41,6 +41,9 @@ func main() {
 	app.Get("/api/auth/google/login", handlers.GoogleLogin)
 	app.Get("/api/auth/google/callback", handlers.GoogleCallback(DB))
 
+	// ROUTE OTP
+	app.Post("/api/send-otp", handlers.SendOTP(DB))
+	app.Post("/api/verify-otp", handlers.VerifyOTP(DB))
 	port := os.Getenv("APP_PORT")
 	if port == "" {
 		port = "3000"

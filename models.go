@@ -6,7 +6,7 @@ import "time"
 type User struct {
 	UserID       int       `json:"user_id"`
 	FullName     string    `json:"full_name"`
-	Gmail        string    `json:"gmail"`
+	NoHp         string    `json:"no_hp"`
 	PasswordUser string    `json:"-"`
 	ProfileImage *string   `json:"profile_image,omitempty"`
 	CreatedAt    time.Time `json:"created_at"`
