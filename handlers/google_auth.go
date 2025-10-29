@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
+	"net/url"
 	"os"
 	"time"
 
@@ -91,10 +93,12 @@ func GoogleCallback(db *sql.DB) fiber.Handler {
 		appToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 		signed, _ := appToken.SignedString([]byte(os.Getenv("JWT_SECRET")))
 
-		return c.JSON(fiber.Map{
-			"message": "Login Google successful",
-			"token":   signed,
-			"user":    userInfo,
-		})
+		// ✅ Redirect ke frontend dengan token di query string
+		frontendURL := os.Getenv("FRONTEND_URL") // contoh: http://localhost:3000
+		if frontendURL == "" {
+			frontendURL = "http://localhost:3000"
+		}
+		redirectURL := fmt.Sprintf("%s/?token=%s", frontendURL, url.QueryEscape(signed))
+		return c.Redirect(redirectURL, fiber.StatusTemporaryRedirect)
 	}
 }
