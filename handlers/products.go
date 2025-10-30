@@ -57,7 +57,7 @@ func CreateProduct(db *sql.DB) fiber.Handler {
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 		}
-		return c.Status(201).JSON(fiber.Map{"message": "product created"})
+		return c.Status(201).JSON(fiber.Map{"message": "Produk berhasil dibuat"})
 	}
 }
 
@@ -75,7 +75,7 @@ func GetProduct(db *sql.DB) fiber.Handler {
 			Scan(&p.ProductID, &p.ProductName, &p.Price, &p.ImageURL, &p.CategoryID, &p.Category, &p.StoreID, &p.Store)
 
 		if err == sql.ErrNoRows {
-			return c.Status(404).JSON(fiber.Map{"error": "product not found"})
+			return c.Status(404).JSON(fiber.Map{"error": "produk tidak ditemukan"})
 		}
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
@@ -96,7 +96,7 @@ func UpdateProduct(db *sql.DB) fiber.Handler {
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 		}
-		return c.JSON(fiber.Map{"message": "product updated"})
+		return c.JSON(fiber.Map{"message": "produk berhasil diperbarui"})
 	}
 }
 
