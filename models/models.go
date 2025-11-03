@@ -1,12 +1,12 @@
-// menentukan struktur data untuk user, store, category, dan product
-package main
+// models.go
+package models
 
 import "time"
 
 type User struct {
 	UserID       int       `json:"user_id"`
 	FullName     string    `json:"full_name"`
-	NoHp         string    `json:"no_hp"`
+	Phone        string    `json:"no_hp"`
 	PasswordUser string    `json:"-"`
 	ProfileImage *string   `json:"profile_image,omitempty"`
 	CreatedAt    time.Time `json:"created_at"`

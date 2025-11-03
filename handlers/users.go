@@ -1,4 +1,4 @@
-// mengelola request terkait user
+// users.go
 package handlers
 
 import (
@@ -11,8 +11,8 @@ type User struct {
 	UserID       int     `json:"user_id"`
 	FullName     string  `json:"full_name"`
 	Phone        string  `json:"no_hp"`
-	PasswordUser string  `json:"-"`
-	ProfileImage *string `json:"profile_image,omitempty"`
+	PasswordUser string  `json:"-"`                       // disembunyikan saat JSON
+	ProfileImage *string `json:"profile_image,omitempty"` // opsional
 }
 
 func GetUsers(db *sql.DB) fiber.Handler {
