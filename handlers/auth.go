@@ -8,7 +8,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // Simpan secret di .env di produksi
@@ -25,7 +24,7 @@ type LoginInput struct {
 	Password string `json:"password"`
 }
 
-// ✅ REGISTER HANDLER
+// ✅ REGISTER TANPA HASH
 func RegisterUser(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var input RegisterInput
@@ -49,13 +48,9 @@ func RegisterUser(db *sql.DB) fiber.Handler {
 			return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "Phone number already registered"})
 		}
 
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to hash password"})
-		}
-
+		// Simpan password langsung (⚠️ hanya untuk testing!)
 		_, err = db.Exec(`INSERT INTO users (full_name, no_hp, password_user) VALUES ($1, $2, $3)`,
-			input.FullName, input.Phone, string(hashedPassword))
+			input.FullName, input.Phone, input.Password)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to register user"})
 		}
@@ -64,7 +59,7 @@ func RegisterUser(db *sql.DB) fiber.Handler {
 	}
 }
 
-// ✅ LOGIN HANDLER
+// ✅ LOGIN TANPA HASH
 func LoginUser(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var input LoginInput
@@ -89,7 +84,8 @@ func LoginUser(db *sql.DB) fiber.Handler {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Database error"})
 		}
 
-		if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordUser), []byte(input.Password)); err != nil {
+		// Bandingkan langsung plaintext password
+		if user.PasswordUser != input.Password {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid phone or password"})
 		}
 
@@ -106,7 +102,7 @@ func LoginUser(db *sql.DB) fiber.Handler {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
 		}
 
-		user.PasswordUser = "" // jangan kirim hash password ke client
+		user.PasswordUser = ""
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message": "Login successful",
 			"token":   signedToken,

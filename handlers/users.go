@@ -2,9 +2,12 @@
 package handlers
 
 import (
+	"backend/models"
 	"database/sql"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type User struct {
@@ -17,21 +20,37 @@ type User struct {
 
 func GetUsers(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		rows, err := db.Query(`SELECT user_id, full_name, no_hp, profile_image FROM users ORDER BY user_id`)
-		if err != nil {
-			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		tokenString := c.Get("Authorization")
+		if tokenString == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing token"})
 		}
-		defer rows.Close()
 
-		var users []User
-		for rows.Next() {
-			var u User
-			if err := rows.Scan(&u.UserID, &u.FullName, &u.Phone, &u.ProfileImage); err != nil {
-				return c.Status(500).JSON(fiber.Map{"error": err.Error()})
-			}
-			users = append(users, u)
+		// Format token biasanya: "Bearer <token>"
+		var jwtToken string
+		_, err := fmt.Sscanf(tokenString, "Bearer %s", &jwtToken)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid token format"})
 		}
-		return c.JSON(users)
+
+		claims := jwt.MapClaims{}
+		token, err := jwt.ParseWithClaims(jwtToken, claims, func(token *jwt.Token) (interface{}, error) {
+			return jwtSecret, nil
+		})
+
+		if err != nil || !token.Valid {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token"})
+		}
+
+		userID := int(claims["user_id"].(float64))
+		var user models.User
+
+		err = db.QueryRow(`SELECT user_id, full_name, no_hp, profile_image FROM users WHERE user_id=$1`, userID).
+			Scan(&user.UserID, &user.FullName, &user.Phone, &user.ProfileImage)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "User not found"})
+		}
+
+		return c.JSON(fiber.Map{"user": user})
 	}
 }
 
