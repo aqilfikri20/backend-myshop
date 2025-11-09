@@ -70,7 +70,7 @@ func GoogleCallback(db *sql.DB) fiber.Handler {
 		client := googleOauthConfig.Client(context.Background(), token)
 		resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 		if err != nil {
-			return c.Status(500).JSON(fiber.Map{"error": "Failed to get user info"})
+			return c.Status(500).JSON(fiber.Map{"error": "Gagal mendapatkan user info"})
 		}
 		defer resp.Body.Close()
 
