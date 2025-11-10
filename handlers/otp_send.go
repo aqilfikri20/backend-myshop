@@ -42,7 +42,7 @@ func SendOTP(db *sql.DB) fiber.Handler {
 
 		// Kirim OTP ke WhatsApp via Fonnte
 		token := os.Getenv("FONNTE_TOKEN")
-		message := fmt.Sprintf("Kode OTP kamu: %s (berlaku 5 menit). Jangan bagikan ke siapa pun.", otp)
+		message := fmt.Sprintf("Kode OTP kamu: %s (berlaku 5 menit). Hati-hati jangan bagikan ke siapa pun.", otp)
 
 		formData := url.Values{}
 		formData.Set("target", req.Phone)
@@ -55,7 +55,7 @@ func SendOTP(db *sql.DB) fiber.Handler {
 		client := &http.Client{}
 		resp, err := client.Do(reqFonnte)
 		if err != nil || resp.StatusCode != 200 {
-			return c.Status(500).JSON(fiber.Map{"error": "Failed to send WhatsApp message"})
+			return c.Status(500).JSON(fiber.Map{"error": "Gagal mengirim OTP ke WhatsApp"})
 		}
 		defer resp.Body.Close()
 
