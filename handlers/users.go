@@ -22,7 +22,7 @@ func GetUsers(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		tokenString := c.Get("Authorization")
 		if tokenString == "" {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing token"})
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Token tidak ditemukan "})
 		}
 
 		// Format token biasanya: "Bearer <token>"
